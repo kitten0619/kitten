@@ -1,0 +1,16 @@
+{
+  "name": "ket-word-adventure",
+  "version": "1.0.0",
+  "description": "KET单词大冒险 - 单词闯关学习游戏",
+  "type": "module",
+  "scripts": {
+    "dev": "node server/index.js",
+    "start": "node server/index.js",
+    "test": "node tests/learning-core.test.cjs"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.110.7",
+    "cors": "^2.8.6",
+    "express": "^5.2.1"
+  }
+}

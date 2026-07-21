@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KET单词大冒险</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
+<link href="https://fonts.googleapis.cn/css2?family=Noto+Sans+SC:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#f8f7ff;--muted:#aba9d5;--panel:#11113a;--line:#393580;--violet:#8b5cf6;--cyan:#41e6f2;--yellow:#ffd43b}
+*{box-sizing:border-box}button{font:inherit}
+body{margin:0;background:#07071f;color:var(--ink);font-family:"Noto Sans SC","Microsoft YaHei","PingFang SC",Arial,sans-serif}
+.app-shell{min-height:100vh;display:grid;grid-template-columns:118px 1fr;background:radial-gradient(circle at 70% 12%,#25115b 0,transparent 34%),linear-gradient(150deg,#080822,#0b0a2e 65%,#091b36);overflow:hidden}
+.sidebar{position:sticky;top:0;height:100vh;padding:22px 12px;border-right:1px solid #3c4db8;background:linear-gradient(180deg,#0d0b35,#09082a);display:flex;flex-direction:column;align-items:center;z-index:5}
+.brand{width:64px;height:64px;display:grid;place-items:center;border:2px solid #8a5cff;border-radius:19px;background:#22165c;box-shadow:0 0 24px #7639e880;font-size:32px;font-weight:900}
+.brand span{color:#ffd83d}
+.sidebar nav{width:100%;display:grid;gap:15px;margin-top:42px}
+.sidebar nav button{height:83px;border:1px solid transparent;border-radius:18px;color:#aaa8cc;background:transparent;cursor:pointer;display:grid;place-items:center;gap:3px;transition:.2s}
+.sidebar nav button b{font-size:28px;line-height:1}
+.sidebar nav button span{font-size:13px;font-weight:700}
+.sidebar nav button:hover,.sidebar nav button.active{color:#fff;border-color:#8364ff;background:linear-gradient(145deg,#422295,#21135d);box-shadow:0 0 18px #754dff66}
+.avatar{margin-top:auto;width:54px;height:54px;border-radius:50%;display:grid;place-items:center;background:#28206a;border:2px solid #4fe4f2;font-size:25px;box-shadow:0 0 16px #41e6f266}
+.content{min-width:0;padding:0 30px 30px}
+.topbar{height:68px;display:flex;align-items:center;justify-content:space-between;color:#c5c2e8;font-size:14px;border-bottom:1px solid #272659}
+.live-dot{width:8px;height:8px;background:#49edcb;border-radius:50%;display:inline-block;box-shadow:0 0 9px #49edcb;margin-right:8px}
+.top-stats{display:flex;gap:12px}
+.top-stats span{padding:9px 15px;border:1px solid #38336c;background:#12113c;border-radius:99px;color:white}
+.hero{min-height:470px;margin-top:20px;border:1px solid #6947de;border-radius:28px;position:relative;overflow:hidden;display:grid;grid-template-columns:43% 57%;background:radial-gradient(circle at 78% 50%,#2c236d,transparent 36%),linear-gradient(120deg,#17104b,#090b31);box-shadow:inset 0 0 0 5px #1b1450,0 18px 55px #030313}
+.hero:before{content:"";position:absolute;inset:0;background-image:radial-gradient(circle,#7773ff 1px,transparent 1.5px);background-size:59px 53px;opacity:.2}
+.hero-copy{z-index:2;padding:62px 0 40px 54px}
+.eyebrow{color:#7de7ff;font-size:12px;font-weight:800;letter-spacing:2.3px}
+.hero h1{font-size:68px;line-height:1.04;margin:14px 0 15px;letter-spacing:-3px;text-shadow:0 0 28px #7656ff88}
+.hero h1 .gradient{background:linear-gradient(90deg,#ffffff,#aa8cff 60%,#4ae7f0);-webkit-background-clip:text;color:transparent}
+.subtitle{font-size:20px;color:#c7c5e8;margin-bottom:30px}
+.cta{border:2px solid #fff0a2;background:linear-gradient(180deg,#ffe65a,#ffb900);box-shadow:0 5px 0 #b66a00,0 0 28px #ffc40080;color:#2c1600;padding:17px 26px;border-radius:13px;font-size:21px;font-weight:900;cursor:pointer;transition:.2s}
+.cta:hover{transform:translateY(-3px);box-shadow:0 8px 0 #b66a00,0 0 38px #ffc400}
+.cta .arrow{font-size:34px;vertical-align:-3px;margin-left:30px}
+.map{position:relative;min-height:470px;z-index:1}
+.map:after{content:"";position:absolute;width:520px;height:250px;left:0;top:94px;transform:rotate(-5deg);border-radius:55% 44% 50% 45%;background:linear-gradient(160deg,#392879,#15144c);box-shadow:inset 0 0 25px #8d5cff,0 24px 0 #080824;clip-path:polygon(2% 45%,18% 23%,40% 31%,61% 3%,81% 19%,100% 7%,95% 50%,78% 62%,62% 91%,39% 71%,20% 92%,0 70%)}
+.map-label{position:absolute;z-index:2;top:28px;left:85px;color:#fff;font-weight:800}
+.map-label span{color:#58edf0;margin-left:12px}
+.path{position:absolute;z-index:3;width:400px;height:170px;left:52px;top:145px;border:5px dashed #65dbff;border-color:#65dbff transparent #65dbff #65dbff;border-radius:50%;transform:rotate(-8deg);filter:drop-shadow(0 0 8px #4edcff)}
+.node{position:absolute;z-index:4;width:46px;height:46px;border:3px solid #5c5b8f;border-radius:50%;display:grid;place-items:center;background:#1b1a42;color:#8d8ba9}
+.node small{position:absolute;top:45px;background:#0a0b2a;border:1px solid #5250a1;border-radius:6px;padding:2px 7px;color:#ddd}
+.node.done{border-color:#40e6ed;color:#55f3ef;box-shadow:0 0 18px #39d9e8}
+.node.current{width:58px;height:58px;border-color:#ffe04b;color:#ffe04b;box-shadow:0 0 25px #ffd21f;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+.n1{left:55px;top:271px}.n2{left:147px;top:197px}.n3{left:254px;top:233px}.n4{left:354px;top:141px}
+.cards{position:absolute;z-index:4;right:17px;bottom:22px;display:flex;align-items:flex-end}
+.game-card{width:135px;height:188px;margin-left:-34px;padding:13px;border:3px solid;border-radius:14px;transform:rotate(-7deg);display:flex;flex-direction:column;justify-content:flex-end;box-shadow:0 10px 25px #0008;transition:.25s;background:radial-gradient(circle at 50% 28%,#65d1ff66,transparent 30%),#113a7e}
+.game-card:hover{transform:rotate(-3deg) translateY(-12px);z-index:6}
+.game-card small{position:absolute;top:10px;font-weight:900}
+.game-card b{font-size:18px}
+.game-card span{margin-top:5px}
+.game-card.gold{height:218px;transform:rotate(2deg);border-color:#ffe96e;background:radial-gradient(circle at 50% 27%,#fff4a888,transparent 26%),linear-gradient(#8b560d,#e4a92a);z-index:5}
+.game-card.purple{border-color:#ba71ff;background:radial-gradient(circle at 50% 27%,#dc9cff66,transparent 28%),#3c1873;transform:rotate(9deg)}
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);margin:18px 0;background:#0e0e35;border:1px solid #343171;border-radius:17px}
+.metrics>div{padding:17px 30px;display:flex;align-items:center;gap:20px}
+.metrics>div+div{border-left:1px solid #373470}
+.metrics b{font-size:32px}
+.metrics p{display:flex;align-items:center;justify-content:space-between;flex:1;color:#d8d7ed}
+.metrics strong{font-size:29px;color:#ffe53c}
+.metrics small{font-size:14px;color:#fff}
+.metrics div:nth-child(2) strong{color:#4ce8ef}
+.missions{padding:22px;border:1px solid #292764;border-radius:22px;background:#0b0b2d}
+.section-title{display:flex;align-items:end;justify-content:space-between;margin-bottom:17px}
+.section-title p{color:#8e79ff;font-size:11px;font-weight:800;letter-spacing:2px;margin:0 0 4px}
+.section-title h2,.section-title h1{margin:0}
+.section-title>span{font-size:13px;color:#9997c3}
+.mission-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:13px}
+.mission{min-height:127px;border:1px solid #7249de;border-radius:15px;padding:17px;display:grid;grid-template-columns:45px 1fr;gap:11px;position:relative;background:linear-gradient(145deg,#21134f,#11113d);cursor:pointer;color:#fff;text-align:left}
+.mission.blue{border-color:#316fc9;background:linear-gradient(145deg,#112c59,#10123d)}
+.mission.cyan{border-color:#27aebe;background:linear-gradient(145deg,#0c414c,#10143e)}
+.mission.red{border-color:#d44b65;background:linear-gradient(145deg,#4a182e,#17113e)}
+.mission.red:disabled{opacity:.5;cursor:not-allowed}
+.mission b{font-size:32px}
+.mission h3{margin:0;font-size:16px}
+.mission p{margin:5px 0 0;font-size:13px;color:#b8b5d8}
+.mission strong{position:absolute;right:14px;bottom:14px;font-size:14px}
+.quiz-wrap{max-width:680px;margin:40px auto;text-align:center}
+.quiz-head{display:flex;align-items:center;gap:15px;margin-bottom:24px}
+.quiz-head .back{border:1px solid #4d4a88;background:#1a1840;color:#ccc;border-radius:9px;padding:8px 14px;cursor:pointer}
+.quiz-progress{flex:1;height:10px;background:#1a1840;border:1px solid #3d3a70;border-radius:6px;overflow:hidden}
+.quiz-progress i{display:block;height:100%;background:linear-gradient(90deg,#5ce8cf,#3db8ff);transition:.4s}
+.quiz-head span{color:#aaa;font-size:14px}
+.quiz-card{border:1px solid #4a4690;border-radius:22px;padding:40px 30px;background:radial-gradient(circle at 50% 30%,#2a2560,transparent 50%),#0c0c2e}
+.combo{display:inline-block;border:1px solid #ffcb3b;background:#2a1f08;border-radius:20px;padding:6px 14px;color:#ffe44d;font-weight:900;font-size:13px;margin-bottom:16px}
+.sound{border:1px solid #5e5ba0;background:#23205a;color:#fff;border-radius:50%;width:44px;height:44px;cursor:pointer;font-size:20px;margin:10px auto;display:block}
+.quiz-card h1{font-size:52px;margin:8px 0;letter-spacing:-1px}
+.phonetic{color:#8e8bc0;font-size:15px;margin-bottom:28px}
+.answers{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.answers button{border:2px solid #4a4790;background:#1a1845;color:#fff;border-radius:13px;padding:16px;cursor:pointer;font-size:17px;text-align:left;display:flex;align-items:center;gap:12px;transition:.15s}
+.answers button span{width:30px;height:30px;border:1px solid #5c5a90;border-radius:8px;display:grid;place-items:center;font-size:13px;color:#999}
+.answers button:hover:not(:disabled){border-color:#8a7dff;background:#23205a}
+.answers button.correct{border-color:#3be0a0;background:#0f3828;color:#5fffb8}
+.answers button.wrong{border-color:#ff5c5c;background:#3a1414;color:#ff8888}
+.answers button.dim{opacity:.4}
+.feedback{margin-top:20px;padding:18px;border-radius:14px;text-align:left}
+.feedback.ok{border:1px solid #3be0a0;background:#0d2a20}
+.feedback.no{border:1px solid #ff5c5c;background:#2a0d0d}
+.feedback strong{font-size:17px}
+.feedback p{color:#b8d4cc;margin:8px 0 12px;font-size:14px}
+.feedback button{border:0;background:#ffe04b;color:#251800;font-weight:900;border-radius:9px;padding:10px 18px;cursor:pointer}
+.collection-screen{padding-top:20px}
+.collection-head{display:flex;justify-content:space-between;align-items:start;gap:20px}
+.collection-head h1{font-size:36px;margin:6px 0}
+.collection-head p{color:#b8b5d8;margin:8px 0}
+.collection-head b{color:#ffe44d}
+.pack-button{border:2px solid #ffa94d;background:linear-gradient(145deg,#4a2a00,#2a1800);color:#ffe4a0;padding:14px 22px;border-radius:14px;cursor:pointer;font-weight:900;font-size:15px;white-space:nowrap}
+.pack-button:disabled{opacity:.4;cursor:not-allowed}
+.pack-button small{display:block;font-size:11px;color:#cc9955;font-weight:400;margin-top:4px}
+.deck-bar{display:grid;grid-template-columns:110px repeat(5,1fr);gap:10px;margin:22px 0;border:1px solid #2f2c60;border-radius:14px;background:#0a0a28;padding:12px}
+.deck-bar>span{display:flex;align-items:center;color:#8a87b5;font-size:13px;font-weight:700}
+.deck-bar>div{min-height:64px;border:1px dashed #3d3a70;border-radius:10px;padding:8px 10px;display:grid;gap:3px}
+.deck-bar>div b{font-size:13px}
+.deck-bar>div small{color:#8a87b5;font-size:11px}
+.deck-bar>div em{color:#555;font-size:12px}
+.filter-row{display:flex;gap:8px;margin:16px 0}
+.filter-row button{border:1px solid #3d3a70;background:#151340;color:#aaa;border-radius:9px;padding:8px 16px;cursor:pointer;font-size:13px}
+.filter-row button.active{border-color:#8a7dff;background:#2a2560;color:#fff}
+.collection-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:16px}
+.card-cell{position:relative;padding-bottom:38px}
+.collect-card{width:100%;min-height:285px;border:3px solid #7c7b96;border-radius:18px;padding:15px;color:#fff;background:radial-gradient(circle at 50% 37%,#8890b966,transparent 27%),linear-gradient(160deg,#3b3b5c,#15152e);box-shadow:0 15px 28px #0007,inset 0 0 24px #ffffff0a;text-align:left;cursor:pointer;transition:.2s;position:relative;overflow:hidden}
+.collect-card:before{content:"";position:absolute;inset:7px;border:1px solid #ffffff30;border-radius:12px;pointer-events:none}
+.collect-card:hover{transform:translateY(-7px)}
+.collect-card.selected{box-shadow:0 0 0 4px #49e8d4,0 16px 30px #0008}
+.collect-card.selected:after{content:"出战";position:absolute;right:10px;bottom:9px;background:#3be0c0;color:#05221d;padding:3px 8px;border-radius:8px;font-size:11px;font-weight:900}
+.rarity-R{border-color:#b16cff;background:radial-gradient(circle at 50% 37%,#a95ffb66,transparent 27%),linear-gradient(160deg,#482377,#191331)}
+.rarity-SR{border-color:#53cfff;background:radial-gradient(circle at 50% 37%,#4fcfff77,transparent 27%),linear-gradient(160deg,#126394,#101c45)}
+.rarity-SSR{border-color:#ffe36a;background:radial-gradient(circle at 50% 37%,#fff5a299,transparent 28%),linear-gradient(160deg,#a0680c,#432209);box-shadow:0 0 26px #ffc83f55,0 15px 28px #0007}
+.collect-card.locked{filter:grayscale(.7);opacity:.48;cursor:not-allowed}
+.card-top{display:flex;justify-content:space-between;font-size:13px}
+.card-top b{font-size:21px}
+.card-art{height:125px;display:grid;place-items:center;font-size:67px;filter:drop-shadow(0 9px 9px #0008)}
+.collect-card small{color:#e1ddff;font-size:11px}
+.collect-card h3{font-size:25px;margin:5px 0 3px}
+.collect-card p{margin:0;color:#f8e9bb}
+.collect-card em{display:block;color:#c5c2dd;font-size:12px;margin-top:8px}
+.tiny-sound{position:absolute;bottom:0;left:50%;transform:translateX(-50%);border:1px solid #454078;background:#14123a;color:#ccc;border-radius:8px;padding:5px 12px;cursor:pointer}
+.modal{position:fixed;inset:0;background:#050517dd;z-index:20;display:grid;place-items:center;backdrop-filter:blur(8px)}
+.pack-result{text-align:center;animation:pop .5s ease-out}
+.pack-result p{color:#52ecf3;font-weight:900;letter-spacing:4px}
+.pack-result h2{font-size:30px}
+.pack-result .collect-card{width:235px;margin:auto}
+.pack-result>button{display:block;margin:23px auto;border:0;background:#ffe04b;color:#261800;font-weight:900;border-radius:11px;padding:12px 25px;cursor:pointer}
+@keyframes pop{0%{transform:scale(.25) rotate(-12deg);opacity:0}70%{transform:scale(1.08) rotate(2deg)}100%{transform:scale(1)}}
+.battle-screen{max-width:1240px;padding-top:20px}
+.battle-top{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:20px;margin:22px 0 14px}
+.battle-top h1{margin:3px 0}
+.wave-dots{display:flex;gap:8px}
+.wave-dots span{width:34px;height:34px;display:grid;place-items:center;border:1px solid #504b8c;background:#15133f;border-radius:50%;color:#8582ad;font-weight:900}
+.wave-dots span.now{color:#231700;background:#ffe04b;border-color:#fff19b;box-shadow:0 0 18px #ffcf3d}
+.wave-dots span.clear{background:#25c99e;color:#05291e;border-color:#6ff4d1}
+.intent{justify-self:end;border:1px solid #ff5f8277;background:#35132a;padding:10px 16px;border-radius:12px;display:flex;flex-direction:column;gap:3px}
+.intent small{color:#c891a5}
+.intent b{font-size:13px}
+.advanced-arena{height:305px;border:1px solid #5549bd;border-radius:24px;display:grid;grid-template-columns:1fr 150px 1fr;align-items:center;background:radial-gradient(circle at 50% 110%,#7739bc88,transparent 40%),linear-gradient(180deg,#10194b,#0d0c31);box-shadow:inset 0 0 55px #603bd933;overflow:hidden}
+.enemy-zone,.player-zone{text-align:center;padding:25px}
+.unit-head{max-width:280px;margin:auto;display:flex;justify-content:space-between;font-size:13px}
+.hp.wide{height:13px;max-width:280px;margin:7px auto;background:#2a1c37;border:2px solid #f1eaf8;border-radius:10px;overflow:hidden}
+.hp.wide i{display:block;height:100%;background:linear-gradient(90deg,#ff375d,#ff8c4d);transition:.5s}
+.hp.wide.player-hp i{background:linear-gradient(90deg,#26bd8f,#63edcf)}
+.big-enemy,.big-player{font-size:105px;line-height:1.45;filter:drop-shadow(0 14px 10px #0009);animation:float 2.2s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.center-fx{display:flex;flex-direction:column;gap:16px;text-align:center;position:relative}
+.center-fx b{font-size:18px;color:#ffe44d}
+.center-fx span{border:1px solid #5ee7f0;background:#0f3850;border-radius:20px;padding:7px;color:#72edf2;font-weight:900}
+.combo-hot{color:#fff04b!important;border-color:#ffcb3b!important;box-shadow:0 0 20px #ff9e36;animation:comboPulse .65s infinite alternate}
+@keyframes comboPulse{to{transform:scale(1.08)}}
+.status-row{display:flex;gap:7px;justify-content:center}
+.status-row span{font-size:11px;border:1px solid #46437d;background:#171541;border-radius:8px;padding:5px 9px}
+.battle-console{display:grid;grid-template-columns:1fr 1.4fr;gap:13px;margin:13px 0}
+.combat-log,.turn-panel{min-height:125px;border:1px solid #373373;border-radius:15px;background:#0e0d31;padding:14px 18px}
+.combat-log p{margin:5px 0;color:#77749c;font-size:12px}
+.combat-log p.latest{color:#e9e8fa;font-size:13px}
+.turn-panel{text-align:center;display:flex;flex-direction:column;justify-content:center}
+.turn-panel p{color:#aaa7ca;margin:4px}
+.turn-panel h2{margin:0}
+.question-label{color:#fff!important;font-weight:800}
+.battle-answers{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:8px}
+.battle-answers button{border:1px solid #4dddc7;background:#174d49;color:#fff;border-radius:9px;padding:9px 14px;cursor:pointer;min-width:130px}
+.battle-answers button:hover{background:#237a6f}
+.end-turn{align-self:center;margin-top:9px;border:1px solid #7267c0;background:#26215b;color:#fff;border-radius:9px;padding:9px 17px;cursor:pointer}
+.reset-battle{display:block;margin:14px auto 0;border:0;background:#ffd94c;color:#211500;font-weight:900;border-radius:10px;padding:11px 18px;cursor:pointer}
+.advanced-deck{display:grid;grid-template-columns:repeat(5,1fr);gap:13px;margin-top:12px}
+.battle-card{min-height:170px;border:2px solid #77758d;border-radius:16px;padding:14px 17px;color:#fff;text-align:left;cursor:pointer;box-shadow:0 12px 25px #0007;transition:.2s;position:relative;background:linear-gradient(145deg,#35354f,#14132d)}
+.battle-card:hover:not(:disabled){transform:translateY(-7px);box-shadow:0 18px 32px #0008}
+.battle-card>div{display:flex;align-items:center;justify-content:space-between}
+.battle-card>div b{font-size:20px}
+.battle-card>div span{font-size:40px}
+.battle-card>div em{font-style:normal;background:#222052;border-radius:8px;padding:5px 8px;color:#5ce7ef}
+.battle-card h3{font-size:24px;margin:3px 0}
+.battle-card p{color:#ffe6a1;margin:0}
+.battle-card small{display:block;color:#c5c2db;margin-top:12px}
+.battle-card strong{position:absolute;right:15px;bottom:13px;color:#fff}
+.battle-card.disabled{filter:grayscale(1);opacity:.4;cursor:not-allowed}
+.damage-float{position:absolute;left:50%;top:43%;transform:translate(-50%,-50%);z-index:3;color:#fff45f;font-size:25px;text-shadow:0 0 9px #ff3d42,0 3px 0 #611;animation:damageRise .65s ease-out forwards;white-space:nowrap}
+@keyframes damageRise{0%{opacity:0;transform:translate(-50%,20px) scale(.6)}35%{opacity:1;transform:translate(-50%,-20px) scale(1.25)}100%{opacity:0;transform:translate(-50%,-75px) scale(1)}}
+.effect-hit .big-enemy{animation:enemyHit .55s ease}
+.effect-hurt .big-player{animation:playerHit .55s ease}
+.effect-shield .big-player{animation:shieldGlow .65s ease}
+.effect-heal .big-player,.effect-heal .big-enemy{animation:healGlow .65s ease}
+@keyframes enemyHit{20%,60%{transform:translateX(18px) rotate(7deg);filter:brightness(2) drop-shadow(0 0 25px #fff)}40%,80%{transform:translateX(-18px) rotate(-7deg)}}
+@keyframes playerHit{20%,60%{transform:translateX(-14px);filter:hue-rotate(300deg) brightness(2)}40%,80%{transform:translateX(14px)}}
+@keyframes shieldGlow{50%{filter:drop-shadow(0 0 35px #4df8ff) brightness(1.8);transform:scale(1.12)}}
+@keyframes healGlow{50%{filter:drop-shadow(0 0 35px #5dff85) brightness(1.8);transform:translateY(-8px) scale(1.1)}}
+.book-screen{padding-top:20px}
+.book-screen button{border:0;background:#ffe04b;color:#251800;font-weight:900;border-radius:10px;padding:11px 18px;cursor:pointer}
+.word-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:20px}
+.word-grid article{border:1px solid #3d3a70;border-radius:16px;padding:20px;background:#12123a;text-align:center}
+.word-grid article button{border:1px solid #4a4790;background:#1a1845;color:#fff;border-radius:50%;width:36px;height:36px;cursor:pointer;font-size:16px;margin-bottom:10px}
+.word-grid article small{color:#7de7ff;font-size:11px}
+.word-grid article h2{font-size:28px;margin:8px 0}
+.word-grid article p{color:#8e8bc0;margin:4px 0}
+.word-grid article strong{color:#ffe44d;font-size:16px}
+.word-grid article em{display:block;color:#b8b5d8;font-size:13px;margin-top:10px;font-style:normal}
+.empty{text-align:center;padding:60px 20px}
+.empty span{font-size:64px}
+.empty h2{margin:16px 0 8px}
+.empty p{color:#9997c3;margin-bottom:20px}
+@media(max-width:1100px){.deck-bar.five,.advanced-deck{grid-template-columns:repeat(3,1fr)}.collection-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:850px){.battle-top{grid-template-columns:1fr}.wave-dots{grid-row:2}.intent{justify-self:start}.advanced-arena{grid-template-columns:1fr 70px 1fr}.big-enemy,.big-player{font-size:70px}.battle-console{grid-template-columns:1fr}.advanced-deck{grid-template-columns:1fr;max-width:230px;margin:auto}.battle-card{min-height:150px}.enemy-zone,.player-zone{padding:12px}.mission-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:700px){.app-shell{grid-template-columns:1fr}.sidebar{position:fixed;bottom:0;left:0;right:0;height:auto;flex-direction:row;padding:10px;border-right:0;border-top:1px solid #3c4db8}.sidebar nav{display:flex;gap:8px;margin-top:0}.sidebar nav button{height:50px;width:60px}.brand,.avatar{display:none}.content{padding:0 15px 80px}.collection-head{display:block}.pack-button{margin-top:10px}.collection-grid{grid-template-columns:1fr 1fr;gap:10px}.collect-card{min-height:245px;padding:11px}.card-art{height:95px;font-size:50px}.collect-card h3{font-size:18px;word-break:break-word}.arena{grid-template-columns:1fr 40px 1fr;height:240px}.enemy-avatar,.player-avatar{font-size:58px}.deck-bar>div{min-height:48px}.modal .collect-card{width:210px}.collection-head h1,.battle-title h1{font-size:30px}.word-grid{grid-template-columns:1fr 1fr}.hero{grid-template-columns:1fr}.map{display:none}.hero-copy{padding:40px 30px}.hero h1{font-size:42px}.metrics{grid-template-columns:1fr}}
+@media(max-width:520px){.advanced-arena{height:240px}.big-enemy,.big-player{font-size:52px}.center-fx span{font-size:10px}.unit-head{display:block}.status-row{flex-direction:column}.battle-top h1{font-size:27px}.advanced-deck{grid-template-columns:1fr}.battle-answers{display:grid!important;grid-template-columns:1fr 1fr}.battle-answers button{min-width:0}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+let CARDS=[{id:1,word:"explore",meaning:"探索；探险",phonetic:"/ɪkˈsplɔːr/",example:"We explored the old castle.",rarity:"SR",power:72,icon:"🎒",group:"冒险"},{id:2,word:"lighthouse",meaning:"灯塔",phonetic:"/ˈlaɪthaʊs/",example:"The lighthouse helps ships at night.",rarity:"SSR",power:92,icon:"🗼",group:"地点"},{id:3,word:"discover",meaning:"发现",phonetic:"/dɪˈskʌvər/",example:"Mia discovered a hidden path.",rarity:"R",power:55,icon:"🔭",group:"冒险"},{id:4,word:"journey",meaning:"旅行；旅程",phonetic:"/ˈdʒɜːni/",example:"Our journey took three hours.",rarity:"SR",power:70,icon:"🚂",group:"旅行"},{id:5,word:"brave",meaning:"勇敢的",phonetic:"/breɪv/",example:"The brave girl helped the dog.",rarity:"R",power:58,icon:"🛡️",group:"品质"},{id:6,word:"borrow",meaning:"借入",phonetic:"/ˈbɒrəʊ/",example:"Can I borrow your dictionary?",rarity:"N",power:38,icon:"📚",group:"校园"},{id:7,word:"ancient",meaning:"古老的",phonetic:"/ˈeɪnʃənt/",example:"They visited an ancient temple.",rarity:"SSR",power:88,icon:"🏛️",group:"地点"},{id:8,word:"delicious",meaning:"美味的",phonetic:"/dɪˈlɪʃəs/",example:"The soup was delicious.",rarity:"R",power:52,icon:"🍰",group:"食物"},{id:9,word:"invite",meaning:"邀请",phonetic:"/ɪnˈvaɪt/",example:"I invited Leo to my party.",rarity:"N",power:35,icon:"✉️",group:"生活"},{id:10,word:"competition",meaning:"比赛；竞赛",phonetic:"/ˌkɒmpəˈtɪʃən/",example:"She won the swimming competition.",rarity:"SR",power:75,icon:"🏆",group:"运动"},{id:11,word:"environment",meaning:"环境",phonetic:"/ɪnˈvaɪrənmənt/",example:"We must protect the environment.",rarity:"SSR",power:95,icon:"🌍",group:"自然"},{id:12,word:"repair",meaning:"修理",phonetic:"/rɪˈpeər/",example:"Dad repaired my bicycle.",rarity:"N",power:40,icon:"🔧",group:"生活"}];
+const OPTIONS=[["探索；探险","邀请","修理","同意"],["博物馆","灯塔","图书馆","车站"],["忘记","隐藏","发现","描述"],["天气","比赛","旅行；旅程","礼物"],["疲倦的","勇敢的","安静的","著名的"],["归还","借入","携带","购买"]];
+const ENEMIES=[{name:"迷雾史莱姆",icon:"👾",hp:170,attack:22},{name:"遗迹石像",icon:"🗿",hp:245,attack:31},{name:"词语魔龙",icon:"🐲",hp:340,attack:40}];
+let state={screen:'home',score:0,gems:0,owned:[],deck:[],wrong:[],mastered:0,quizIndex:0,selected:null,streak:0,newCard:null,battleStage:0,battleHp:120,battleShield:0,battleEnemyHp:ENEMIES[0].hp,battleEnergy:4,battleCombo:0,battleTurn:1,battleChosen:null,battleChoices:[],battleLog:["战斗开始！观察敌人行动，选择合适的卡牌。"],battleDone:false,battleWon:false,battleEffect:null,battleFloat:"",collectionFilter:'ALL',streakDays:0};
+function loadState(){try{const d=JSON.parse(localStorage.getItem("ket-card-adventure")||"{}");if(d.v===2){if(d.owned)state.owned=d.owned;if(d.deck)state.deck=d.deck;if(d.score!=null)state.score=d.score;if(d.gems!=null)state.gems=d.gems;if(d.wrong)state.wrong=d.wrong;if(d.mastered)state.mastered=d.mastered;if(d.streakDays)state.streakDays=d.streakDays;}}catch(e){}}
+function saveState(){localStorage.setItem("ket-card-adventure",JSON.stringify({v:2,owned:state.owned,deck:state.deck,score:state.score,gems:state.gems,wrong:state.wrong,mastered:state.mastered,streakDays:state.streakDays}));}
+function speak(w){if('speechSynthesis'in window){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(w);u.lang='en-GB';u.rate=0.82;speechSynthesis.speak(u);}}
+function render(){const app=document.getElementById('app');app.innerHTML='<main class="app-shell"><aside class="sidebar"><div class="brand">K<span>!</span></div><nav><button class="'+(state.screen==='home'?'active':'')+'" onclick="setScreen(\'home\')"><b>⌂</b><span>首页</span></button><button class="'+(state.screen==='collection'?'active':'')+'" onclick="setScreen(\'collection\')"><b>🃏</b><span>卡牌图鉴</span></button><button class="'+(state.screen==='battle'?'active':'')+'" onclick="setScreen(\'battle\')"><b>⚔</b><span>卡牌对战</span></button><button class="'+(state.screen==='book'?'active':'')+'" onclick="setScreen(\'book\')"><b>★</b><span>错词本</span></button></nav><div class="avatar">⚡</div></aside><section class="content"><header class="topbar"><div><span class="live-dot"></span> KET 词汇冒险 · A2 Key</div><div class="top-stats"><span id="sync-status" style="display:none;align-items:center;gap:6px;padding:6px 12px;border-radius:20px;background:#1a1a3e;border:1px solid #333;font-size:12px"></span><span>💎 '+state.gems+'</span><span>⭐ '+state.score+'</span><button id="auth-btn" style="background:#2a2560;border:1px solid #4a4790;color:#fff;padding:8px 16px;border-radius:20px;cursor:pointer;font-size:13px" onclick="showLoginModal()">🔐 登录</button></div></header>'+renderScreen()+'</section>'+(state.newCard?renderNewCardModal():'')+'</main>';if(typeof updateAuthUI==='function')updateAuthUI();}
+function renderScreen(){switch(state.screen){case'home':return renderHome();case'quiz':return renderQuiz();case'collection':return renderCollection();case'battle':return renderBattle();case'book':return renderBook();default:return renderHome();}}
+function buildQuizOptions(card,index){const wrong=[];for(let step=1;step<CARDS.length&&wrong.length<3;step++){const other=CARDS[(index+step)%CARDS.length];if(other&&other.meaning!==card.meaning&&!wrong.includes(other.meaning))wrong.push(other.meaning);}const choices=[card.meaning,...wrong];const shift=index%choices.length;return choices.slice(shift).concat(choices.slice(0,shift));}
+function renderHome(){return'<section class="hero"><div class="hero-copy"><p class="eyebrow">LEVEL 1 · WORD EXPLORER</p><h1>KET单词<br><span class="gradient">大冒险</span></h1><p class="subtitle">每天10分钟，闯关记住KET核心词汇</p><button class="cta" onclick="startQuiz()">开始今日冒险 <span class="arrow">›</span></button></div><div class="map"><div class="map-label">第一章 · 奇境启程 <span>3/6</span></div><div class="path"></div><div class="node n1 done">✓<small>1-1</small></div><div class="node n2 done">✓<small>1-2</small></div><div class="node n3 current">⚑<small>1-3</small></div><div class="node n4">🔒<small>1-4</small></div><div class="cards"><div class="game-card blue"><small>SR</small><b>explore</b><span>探索</span></div><div class="game-card gold"><small>SSR</small><b>lighthouse</b><span>灯塔</span></div><div class="game-card purple"><small>R</small><b>discover</b><span>发现</span></div></div></div></section><section class="metrics"><div><b>🔥</b><p>连续学习<strong>'+state.streakDays+' <small>天</small></strong></p></div><div><b>📖</b><p>已掌握<strong>'+state.mastered+' <small>词</small></strong></p></div><div><b>🃏</b><p>卡牌图鉴<strong>'+state.owned.length+'<small>/12</small></strong></p></div></section><section class="missions"><div class="section-title"><div><p>DAILY QUESTS</p><h2>今日任务</h2></div><span>学习、收集、出战！</span></div><div class="mission-grid"><button class="mission violet" onclick="startQuiz()"><b>🎯</b><div><h3>学习新词</h3><p>完成6词闯关得免费卡包</p></div><strong>+ 💎</strong></button><button class="mission blue" onclick="setScreen(\'battle\')"><b>⚔️</b><div><h3>卡牌对战</h3><p>用单词卡击败守关者</p></div><strong>⭐ +30</strong></button><button class="mission cyan" onclick="setScreen(\'collection\')"><b>📚</b><div><h3>卡牌图鉴</h3><p>收集12张KET单词卡</p></div><strong>'+state.owned.length+'/12</strong></button><button class="mission red" onclick="openPack()" '+(state.score<50?'disabled':'')+'><b>🎁</b><div><h3>开启卡包</h3><p>消耗50星星抽取卡牌</p></div><strong>'+(state.score<50?'星星不足':'⭐ -50')+'</strong></button></div></section>';}
+function renderQuiz(){const card=CARDS[state.quizIndex];const options=buildQuizOptions(card,state.quizIndex);return'<section class="quiz-wrap"><div class="quiz-head"><button class="back" onclick="setScreen(\'home\')">← 返回基地</button><div class="quiz-progress"><i style="width:'+((state.quizIndex+1)/6*100)+'%"></i></div><span>'+(state.quizIndex+1)+'/6</span></div><div class="quiz-card"><div class="combo">⚡ 连击 '+state.streak+'</div><p class="eyebrow">选择正确的中文意思</p><button class="sound" onclick="speak(\''+card.word+'\')">🔊</button><h1>'+card.word+'</h1><p class="phonetic">'+card.phonetic+'</p><div class="answers">'+options.map((o,i)=>{let cls='';if(state.selected){if(o===card.meaning)cls='correct';else if(o===state.selected)cls='wrong';else cls='dim';}return'<button class="'+cls+'" onclick="answer(\''+o+'\')" '+(state.selected?'disabled':'')+'><span>'+String.fromCharCode(65+i)+'</span>'+o+'</button>';}).join('')+'</div>'+(state.selected?renderFeedback(card):'')+'</div></section>';}
+function renderFeedback(card){const correct=state.selected===card.meaning;return'<div class="feedback '+(correct?'ok':'no')+'"><strong>'+(correct?'答对了！+10 ⭐':'正确答案：'+card.meaning)+'</strong><p>'+card.example+'</p><button onclick="nextQuestion()">'+(state.quizIndex===5?'完成并开启卡包':'下一题 →')+'</button></div>';}
+function renderCollection(){const filter=state.collectionFilter;const list=filter==='ALL'?CARDS:CARDS.filter(c=>c.rarity===filter);return'<section class="collection-screen"><div class="collection-head"><div><p class="eyebrow">WORD CARD GALLERY</p><h1>单词卡牌图鉴</h1><p>已收集 <b>'+state.owned.length+'</b>/12 · 点击卡牌加入出战卡组（最多5张）</p></div><button class="pack-button" onclick="openPack()" '+(state.score<50?'disabled':'')+'>🎁 开启卡包 <small>50 ⭐</small></button></div><div class="deck-bar five"><span>出战卡组</span>'+[0,1,2,3,4].map(i=>{const c=CARDS.find(x=>x.id===state.deck[i]);return c?'<div><b>'+c.icon+' '+c.word+'</b><small>'+c.rarity+' · ⚔'+c.power+'</small></div>':'<div><em>+ 选择卡牌</em></div>';}).join('')+'</div><div class="filter-row">'+['ALL','N','R','SR','SSR'].map(f=>'<button class="'+(filter===f?'active':'')+'" onclick="setFilter(\''+f+'\')">'+(f==='ALL'?'全部':f)+'</button>').join('')+'</div><div class="collection-grid">'+list.map(c=>{const owned=state.owned.includes(c.id);const inDeck=state.deck.includes(c.id);return'<div class="card-cell"><button class="collect-card rarity-'+c.rarity+(owned?'':' locked')+(inDeck?' selected':'')+'" onclick="toggleDeck('+c.id+')" '+(owned?'':'disabled')+'><div class="card-top"><b>'+c.rarity+'</b><span>⚔ '+c.power+'</span></div><div class="card-art">'+(owned?c.icon:'?')+'</div><small>'+c.group+'</small><h3>'+(owned?c.word:'未解锁')+'</h3><p>'+(owned?c.meaning:'继续学习来发现')+'</p>'+(owned?'<em>'+c.phonetic+'</em>':'')+'</button>'+(owned?'<button class="tiny-sound" onclick="speak(\''+c.word+'\')">🔊 发音</button>':'')+'</div>';}).join('')+'</div></section>';}
+function renderBattle(){const deckCards=state.deck.map(id=>CARDS.find(c=>c.id===id)).filter(Boolean);if(deckCards.length<3){return'<section class="battle-screen"><div class="empty"><span>🃏</span><h2>还不能出战</h2><p>至少选择3张卡牌；建议选择5张组成完整卡组。</p><button onclick="setScreen(\'collection\')">前往卡牌图鉴</button></div></section>';}const foe=ENEMIES[state.battleStage];const turn=state.battleTurn;const intent=turn%3===0?{icon:"🌀",text:"蓄力：下回合伤害+12"}:turn%2===0?{icon:"🛡️",text:"防御：获得18护盾"}:{icon:"⚔️",text:"攻击：造成"+foe.attack+"伤害"};return'<section class="battle-screen advanced"><div class="battle-top"><div><p class="eyebrow">WORD BATTLE · 遗迹远征</p><h1>三波守关战</h1></div><div class="wave-dots">'+ENEMIES.map((e,i)=>'<span class="'+(i<state.battleStage?'clear':i===state.battleStage?'now':'')+'">'+(i<state.battleStage?'✓':i+1)+'</span>').join('')+'</div><div class="intent"><small>敌人意图</small><b>'+intent.icon+' '+intent.text+'</b></div></div><div class="advanced-arena effect-'+(state.battleEffect||'idle')+'"><div class="enemy-zone"><div class="unit-head"><b>'+foe.name+'</b><span>'+state.battleEnemyHp+'/'+foe.hp+'</span></div><div class="hp wide"><i style="width:'+(state.battleEnemyHp/foe.hp*100)+'%"></i></div><div class="big-enemy">'+foe.icon+'</div><div class="status-row"><span>第 '+(state.battleStage+1)+'/3 波</span>'+(turn%3===0?'<span>蓄力中</span>':'')+'</div></div><div class="center-fx"><b>回合 '+turn+'</b><span class="'+(state.battleCombo>=3?'combo-hot':'')+'">⚡ 连击 ×'+state.battleCombo+'</span>'+(state.battleFloat?'<strong class="damage-float">'+state.battleFloat+'</strong>':'')+'</div><div class="player-zone"><div class="unit-head"><b>单词探索者</b><span>'+state.battleHp+'/120</span></div><div class="hp wide player-hp"><i style="width:'+(state.battleHp/120*100)+'%"></i></div><div class="big-player">🤖</div><div class="status-row"><span>🛡️ 护盾 '+state.battleShield+'</span><span>⚡ 能量 '+state.battleEnergy+'/4</span></div></div></div><div class="battle-console"><div class="combat-log">'+state.battleLog.map((x,i)=>'<p class="'+(i===0?'latest':'')+'">'+x+'</p>').join('')+'</div><div class="turn-panel">'+(state.battleDone?'<h2>'+(state.battleWon?'🏆 远征胜利！':'💥 挑战失败')+'</h2><p>'+(state.battleWon?'击败三波敌人，获得30星星。':'调整卡组或复习单词后再来挑战。')+'</p><button class="reset-battle" onclick="resetBattle()">重新挑战</button>':state.battleChosen?'<p class="question-label">释放「'+state.battleChosen.word+'」技能：请选择正确释义</p><div class="battle-answers">'+state.battleChoices.map(x=>'<button onclick="resolveBattle(\''+x+'\')">'+x+'</button>').join('')+'</div>':'<p>选择卡牌使用技能，能量用完后结束回合。</p><button class="end-turn" onclick="endBattleTurn()">结束回合 →</button>')+'</div></div><div class="advanced-deck">'+deckCards.map(c=>{const cost=c.rarity==='SSR'?3:c.rarity==='SR'?2:1;const skill=c.group==='品质'?'答对：获得24护盾':c.group==='旅行'?'答对：攻击并回复12生命':c.group==='冒险'?'答对：连击伤害+15':'答对：造成'+c.power+'伤害';return'<button class="battle-card rarity-'+c.rarity+(state.battleEnergy<cost?' disabled':'')+'" onclick="playBattleCard('+c.id+')" '+(state.battleEnergy<cost||state.battleChosen||state.battleDone?'disabled':'')+'><div><b>'+c.rarity+'</b><span>'+c.icon+'</span><em>⚡'+cost+'</em></div><h3>'+c.word+'</h3><p>'+skill+'</p><strong>⚔ '+c.power+'</strong></button>';}).join('')+'</div></section>';}
+function renderBook(){return'<section class="book-screen"><div class="section-title"><div><p>REVIEW STATION</p><h1>错词修复站</h1></div></div><button onclick="setScreen(\'quiz\')">开始复习</button>'+(state.wrong.length===0?'<div class="empty"><span>🏆</span><h2>错词本还是空的</h2><p>完成单词挑战，答错的单词会自动收集到这里。</p></div>':'<div class="word-grid">'+state.wrong.map(id=>{const c=CARDS.find(x=>x.id===id);return'<article><button onclick="speak(\''+c.word+'\')">🔊</button><small>KET 核心词</small><h2>'+c.word+'</h2><p>'+c.phonetic+'</p><strong>'+c.meaning+'</strong><em>'+c.example+'</em></article>';}).join('')+'</div>')+'</section>';}
+function renderNewCardModal(){const c=state.newCard;return'<div class="modal"><div class="pack-result"><p>NEW CARD!</p><h2>获得新卡牌</h2><button class="collect-card rarity-'+c.rarity+'" style="cursor:default"><div class="card-top"><b>'+c.rarity+'</b><span>⚔ '+c.power+'</span></div><div class="card-art">'+c.icon+'</div><small>'+c.group+'</small><h3>'+c.word+'</h3><p>'+c.meaning+'</p><em>'+c.phonetic+'</em></button><button onclick="closeNewCard()">收入图鉴</button></div></div>';}
+function setScreen(s){state.screen=s;if(s==='battle')resetBattle();render();}
+function startQuiz(){state.screen='quiz';state.quizIndex=0;state.selected=null;render();}
+function answer(o){if(state.selected)return;const card=CARDS[state.quizIndex];state.selected=o;if(o===card.meaning){state.score+=10;state.streak+=1;state.mastered+=1;}else{state.streak=0;if(!state.wrong.includes(card.id)){state.wrong.push(card.id);}}saveState();render();}
+function nextQuestion(){if(state.quizIndex===5){state.gems+=1;openPack(true);}else{state.quizIndex+=1;state.selected=null;render();}}
+function openPack(free){if(!free&&state.score<50)return;if(!free)state.score-=50;const pool=CARDS.filter(c=>!state.owned.includes(c.id));const c=pool.length?pool[Math.floor(Math.random()*pool.length)]:CARDS[Math.floor(Math.random()*CARDS.length)];if(!state.owned.includes(c.id)){state.owned.push(c.id);}state.newCard=c;saveState();render();}
+function closeNewCard(){state.newCard=null;state.quizIndex=0;state.selected=null;state.screen='home';saveState();render();}
+function setFilter(f){state.collectionFilter=f;render();}
+function toggleDeck(id){if(state.deck.includes(id)){state.deck=state.deck.filter(x=>x!==id);}else if(state.deck.length<5){state.deck.push(id);}saveState();render();}
+function resetBattle(){state.battleStage=0;state.battleHp=120;state.battleShield=0;state.battleEnemyHp=ENEMIES[0].hp;state.battleEnergy=4;state.battleCombo=0;state.battleTurn=1;state.battleChosen=null;state.battleChoices=[];state.battleLog=["新一轮战斗开始！"];state.battleDone=false;state.battleWon=false;state.battleEffect=null;state.battleFloat="";}
+function playBattleCard(id){if(state.battleDone||state.battleChosen)return;const c=CARDS.find(x=>x.id===id);const cost=c.rarity==='SSR'?3:c.rarity==='SR'?2:1;if(state.battleEnergy<cost)return;const wrong=CARDS.filter(x=>x.id!==c.id).sort(()=>Math.random()-.5).slice(0,3).map(x=>x.meaning);state.battleChosen=c;state.battleChoices=[c.meaning,...wrong].sort(()=>Math.random()-.5);render();}
+function resolveBattle(ans){if(!state.battleChosen)return;const chosen=state.battleChosen;const correct=ans===chosen.meaning;const cost=chosen.rarity==='SSR'?3:chosen.rarity==='SR'?2:1;state.battleEnergy-=cost;if(correct){let damage=chosen.power+state.battleCombo*5;if(chosen.group==='冒险')damage+=15;if(chosen.group==='品质'){state.battleShield+=24;damage=Math.round(damage*0.55);battleFlash('shield','+24 SHIELD');}else if(chosen.group==='旅行'){state.battleHp=Math.min(120,state.battleHp+12);battleFlash('heal','+12 HP');}else{battleFlash('hit','-'+damage);}const next=Math.max(0,state.battleEnemyHp-damage);state.battleEnemyHp=next;state.battleCombo+=1;state.battleLog=['✓ '+chosen.word+'：造成 '+damage+' 伤害',...state.battleLog].slice(0,4);if(next===0){if(state.battleStage<2){const ns=state.battleStage+1;state.battleStage=ns;state.battleEnemyHp=ENEMIES[ns].hp;state.battleEnergy=4;state.battleShield+=15;state.battleLog=['第 '+(ns+1)+' 波敌人出现！获得15护盾。',...state.battleLog].slice(0,4);state.battleTurn+=1;}else{state.battleDone=true;state.battleWon=true;state.score+=30;saveState();}}}else{state.battleCombo=0;const counter=10+state.battleStage*4;const absorbed=Math.min(state.battleShield,counter);const real=counter-absorbed;state.battleShield=Math.max(0,state.battleShield-counter);state.battleHp=Math.max(0,state.battleHp-real);battleFlash('hurt','-'+real+' COUNTER');state.battleLog=['✕ '+chosen.word+'：答错并受到'+real+'点反击',...state.battleLog].slice(0,4);if(state.battleHp===0){state.battleDone=true;state.battleWon=false;}}state.battleChosen=null;state.battleChoices=[];render();}
+function endBattleTurn(){if(state.battleDone||state.battleChosen)return;const foe=ENEMIES[state.battleStage];const turn=state.battleTurn;let damage=turn%3===0?0:turn%2===0?0:foe.attack;if(turn%2===0){state.battleEnemyHp=Math.min(foe.hp,state.battleEnemyHp+26);state.battleLog=[foe.name+'恢复了26生命',...state.battleLog].slice(0,4);battleFlash('heal','+26 ENEMY');}else if(damage){if(turn%3===1&&turn>3)damage+=16;const absorbed=Math.min(state.battleShield,damage);const real=damage-absorbed;state.battleShield=Math.max(0,state.battleShield-damage);state.battleHp=Math.max(0,state.battleHp-real);battleFlash('hurt','-'+real);state.battleLog=[foe.name+'攻击：护盾吸收'+absorbed+'，受到'+real+'伤害',...state.battleLog].slice(0,4);if(state.battleHp===0){state.battleDone=true;state.battleWon=false;}}state.battleEnergy=4;state.battleTurn+=1;render();}
+function battleFlash(type,text){state.battleEffect=type;state.battleFloat=text;setTimeout(()=>{state.battleEffect=null;state.battleFloat='';},650);}
+
+</script>
+<script>
+window.__KET_BUILD__ = 'ket-v5-srs-20260721';
+
+(async function bootKET() {
+  const app = document.getElementById('app');
+  const loadScript = source => new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = source;
+    script.onload = resolve;
+    script.onerror = () => reject(new Error(`脚本加载失败：${source}`));
+    document.body.appendChild(script);
+  });
+  const showLoading = message => {
+    app.innerHTML = `<div style="min-height:100vh;display:grid;place-items:center;padding:30px;background:#07071f;color:#fff;font-family:sans-serif;text-align:center">
+      <div><div style="font-size:52px">🧠</div><h2>${message}</h2><p style="color:#aaa7ca">版本：${window.__KET_BUILD__}</p></div></div>`;
+  };
+
+  showLoading('正在载入1629个KET单词…');
+  try {
+    const response = await fetch('./assets/cards-data-v5.json?v=5-srs', { cache: 'no-store' });
+    if (!response.ok) throw new Error(`词库请求失败（HTTP ${response.status}）`);
+    const cardData = await response.json();
+    if (!Array.isArray(cardData) || cardData.length !== 1629) {
+      throw new Error(`词库数量异常：应为1629，实际为${Array.isArray(cardData) ? cardData.length : 0}`);
+    }
+    CARDS = cardData;
+    await loadScript('./js/game-upgrades.js?v=5-srs');
+    await loadScript('./js/learning-core.js?v=5-srs');
+    await loadScript('./js/learning-system.js?v=5-srs');
+    await loadScript('./js/api.js?v=5-srs');
+    await loadScript('./js/auth.js?v=5-srs');
+    console.log(`[KET BUILD] ${window.__KET_BUILD__} · Loaded ${CARDS.length} cards`);
+  } catch (error) {
+    console.error('[KET BOOT ERROR]', error);
+    app.innerHTML = `<div style="min-height:100vh;display:grid;place-items:center;padding:30px;background:#07071f;color:#fff;font-family:sans-serif;text-align:center">
+      <div style="max-width:620px;border:1px solid #6c4bd1;background:#11113a;border-radius:20px;padding:30px"><div style="font-size:52px">🛠️</div>
+      <h2>游戏资源加载失败</h2><p style="color:#c2bfdf">${String(error.message || error)}</p>
+      <button onclick="location.reload()" style="border:0;border-radius:10px;background:#ffe04b;color:#251800;padding:11px 20px;font-weight:900;cursor:pointer">重新加载</button>
+      <p style="color:#77749c;font-size:12px">${window.__KET_BUILD__}</p></div></div>`;
+  }
+})();
+</script>
+</body>
+</html>

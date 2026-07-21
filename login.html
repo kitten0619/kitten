@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>登录 - KET单词大冒险</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.login-container {
+  background: white;
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  width: 100%;
+  max-width: 400px;
+}
+.logo {
+  text-align: center;
+  margin-bottom: 30px;
+}
+.logo h1 {
+  font-size: 28px;
+  color: #333;
+  margin-bottom: 8px;
+}
+.logo p {
+  color: #666;
+  font-size: 14px;
+}
+.tabs {
+  display: flex;
+  margin-bottom: 24px;
+  border-bottom: 2px solid #e0e0e0;
+}
+.tab {
+  flex: 1;
+  padding: 12px;
+  text-align: center;
+  cursor: pointer;
+  color: #666;
+  font-weight: 500;
+  transition: all 0.3s;
+}
+.tab.active {
+  color: #667eea;
+  border-bottom: 2px solid #667eea;
+  margin-bottom: -2px;
+}
+.form-group {
+  margin-bottom: 20px;
+}
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #333;
+  font-weight: 500;
+  font-size: 14px;
+}
+.form-group input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: border-color 0.3s;
+}
+.form-group input:focus {
+  outline: none;
+  border-color: #667eea;
+}
+.btn {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+.error {
+  background: #fee;
+  color: #c33;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  display: none;
+}
+.error.show {
+  display: block;
+}
+.switch-link {
+  text-align: center;
+  margin-top: 20px;
+  color: #666;
+  font-size: 14px;
+}
+.switch-link a {
+  color: #667eea;
+  text-decoration: none;
+  font-weight: 500;
+}
+.switch-link a:hover {
+  text-decoration: underline;
+}
+.guest-mode {
+  text-align: center;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e0e0e0;
+}
+.guest-mode a {
+  color: #999;
+  text-decoration: none;
+  font-size: 14px;
+}
+.guest-mode a:hover {
+  color: #667eea;
+}
+</style>
+</head>
+<body>
+<div class="login-container">
+  <div class="logo">
+    <h1>🎮 KET单词大冒险</h1>
+    <p>登录以同步学习进度</p>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="login">登录</div>
+    <div class="tab" data-tab="signup">注册</div>
+  </div>
+
+  <div class="error" id="error"></div>
+
+  <!-- 登录表单 -->
+  <form id="loginForm">
+    <div class="form-group">
+      <label>邮箱</label>
+      <input type="email" id="loginEmail" required placeholder="your@email.com">
+    </div>
+    <div class="form-group">
+      <label>密码</label>
+      <input type="password" id="loginPassword" required placeholder="至少6位">
+    </div>
+    <button type="submit" class="btn">登录</button>
+  </form>
+
+  <!-- 注册表单 -->
+  <form id="signupForm" style="display:none">
+    <div class="form-group">
+      <label>邮箱</label>
+      <input type="email" id="signupEmail" required placeholder="your@email.com">
+    </div>
+    <div class="form-group">
+      <label>密码</label>
+      <input type="password" id="signupPassword" required placeholder="至少6位" minlength="6">
+    </div>
+    <div class="form-group">
+      <label>确认密码</label>
+      <input type="password" id="signupConfirm" required placeholder="再次输入密码">
+    </div>
+    <button type="submit" class="btn">注册</button>
+  </form>
+
+  <div class="switch-link" id="switchLink">
+    还没有账号？<a href="#" id="switchToSignup">去注册</a>
+  </div>
+
+  <div class="guest-mode">
+    <a href="/index.html?guest=1">以游客模式继续 →</a>
+  </div>
+</div>
+
+<script>
+const API_BASE = '/api';
+
+// Tab 切换
+const tabs = document.querySelectorAll('.tab');
+const loginForm = document.getElementById('loginForm');
+const signupForm = document.getElementById('signupForm');
+const switchLink = document.getElementById('switchLink');
+
+tabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    tabs.forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+
+    if (tab.dataset.tab === 'login') {
+      loginForm.style.display = 'block';
+      signupForm.style.display = 'none';
+      switchLink.innerHTML = '还没有账号？<a href="#" id="switchToSignup">去注册</a>';
+    } else {
+      loginForm.style.display = 'none';
+      signupForm.style.display = 'block';
+      switchLink.innerHTML = '已有账号？<a href="#" id="switchToLogin">去登录</a>';
+    }
+
+    bindSwitchLinks();
+    hideError();
+  });
+});
+
+function bindSwitchLinks() {
+  const toSignup = document.getElementById('switchToSignup');
+  const toLogin = document.getElementById('switchToLogin');
+
+  if (toSignup) {
+    toSignup.addEventListener('click', (e) => {
+      e.preventDefault();
+      document.querySelector('[data-tab="signup"]').click();
+    });
+  }
+
+  if (toLogin) {
+    toLogin.addEventListener('click', (e) => {
+      e.preventDefault();
+      document.querySelector('[data-tab="login"]').click();
+    });
+  }
+}
+
+bindSwitchLinks();
+
+function showError(msg) {
+  const error = document.getElementById('error');
+  error.textContent = msg;
+  error.classList.add('show');
+}
+
+function hideError() {
+  document.getElementById('error').classList.remove('show');
+}
+
+// 登录
+loginForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  hideError();
+
+  const email = document.getElementById('loginEmail').value;
+  const password = document.getElementById('loginPassword').value;
+  const btn = loginForm.querySelector('button');
+
+  btn.disabled = true;
+  btn.textContent = '登录中...';
+
+  try {
+    const res = await fetch(`${API_BASE}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error || '登录失败');
+    }
+
+    // 保存 session
+    localStorage.setItem('supabase_session', JSON.stringify(data.session));
+    localStorage.setItem('supabase_user', JSON.stringify(data.user));
+
+    // 跳转到首页
+    window.location.href = '/index.html';
+  } catch (error) {
+    showError(error.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '登录';
+  }
+});
+
+// 注册
+signupForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  hideError();
+
+  const email = document.getElementById('signupEmail').value;
+  const password = document.getElementById('signupPassword').value;
+  const confirm = document.getElementById('signupConfirm').value;
+
+  if (password !== confirm) {
+    showError('两次输入的密码不一致');
+    return;
+  }
+
+  const btn = signupForm.querySelector('button');
+  btn.disabled = true;
+  btn.textContent = '注册中...';
+
+  try {
+    const res = await fetch(`${API_BASE}/auth/signup`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error || '注册失败');
+    }
+
+    // 保存 session
+    localStorage.setItem('supabase_session', JSON.stringify(data.session));
+    localStorage.setItem('supabase_user', JSON.stringify(data.user));
+
+    // 跳转到首页
+    window.location.href = '/index.html';
+  } catch (error) {
+    showError(error.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '注册';
+  }
+});
+</script>
+</body>
+</html>
