@@ -200,7 +200,13 @@
         reward = 2;
       }
       state.score += reward;
-      state.wrong = state.wrong.filter(id => id !== card.id);
+      if (item.mode === "wrongReview") {
+        state.wrongMastery = state.wrongMastery || {};
+        state.wrongMastery[card.id] = (state.wrongMastery[card.id] || 0) + 1;
+        if (state.wrongMastery[card.id] >= 3) {
+          state.wrong = state.wrong.filter(id => id !== card.id);
+        }
+      }
     } else {
       state.streak = 0;
       if (!state.wrong.includes(card.id)) state.wrong.push(card.id);
@@ -223,6 +229,14 @@
     render();
   };
 
+  window.startWrongReview = function () {
+    if (!state.wrong || state.wrong.length === 0) return;
+    state.learningQueue = state.wrong.map(id => ({ id, mode: "wrongReview" }));
+    state.quizIndex = 0;
+    state.screen = "quiz";
+    saveState();
+    render();
+  };
   window.answerLearningOption = function (index) {
     const option = state.learningOptions?.[index];
     if (option != null) answer(option);
