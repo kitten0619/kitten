@@ -1,0 +1,13 @@
+[project]
+entrypoint = "index.html"
+requires = [ "nodejs-24" ]
+project_type = "web"
+template = "native-static"
+
+[dev]
+build = [ "pnpm", "install" ]
+run = [ "node", "server/index.js" ]
+
+[deploy]
+build = [ "pnpm", "install" ]
+run = [ "node", "server/index.js" ]
