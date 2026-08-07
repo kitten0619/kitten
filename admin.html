@@ -668,7 +668,7 @@ async function deleteUser(userId, nickname) {
     const res = await adminFetch(`/api/admin/users/${userId}`, { method: 'DELETE' });
     alert(res.message || '删除成功');
     loadUsers();
-    loadRecentUsers();
+    loadDashboard();
   } catch (error) {
     alert('删除失败：' + error.message);
   }
