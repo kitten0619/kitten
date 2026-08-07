@@ -626,7 +626,11 @@ async function loadUsers() {
         <td>${u.mastered_count || 0}</td>
         <td>${u.streak_days || 0} 天</td>
         <td>${formatDate(u.last_synced_at)}</td>
-        <td><button class="btn btn-secondary" style="width:auto;padding:6px 12px;font-size:12px" onclick="viewUserDetail('${u.id}')">查看详情</button></td>
+        <td>
+          <button class="btn btn-secondary" style="width:auto;padding:6px 12px;font-size:12px" onclick="viewUserDetail('${u.id}')">查看详情</button>
+          <button class="btn btn-secondary" style="width:auto;padding:6px 12px;font-size:12px;margin-left:4px;background:#e67e22" onclick="resetPassword('${u.id}','${u.display_name}')">重置密码</button>
+          <button class="btn btn-secondary" style="width:auto;padding:6px 12px;font-size:12px;margin-left:4px;background:#e74c3c" onclick="deleteUser('${u.id}','${u.display_name}')">删除</button>
+        </td>
       </tr>
     `).join('');
   } catch (error) {
@@ -655,6 +659,34 @@ async function loadWords() {
   } catch (error) {
     console.error('加载词库失败:', error);
     showTableError('#words-table', error, 8);
+  }
+}
+
+async function deleteUser(userId, nickname) {
+  if (!confirm(`确定要删除用户 "${nickname}" 吗？\n此操作将删除该用户的所有数据（进度、卡牌、战斗记录等），且不可恢复！`)) return;
+  try {
+    const res = await adminFetch(`/api/admin/users/${userId}`, { method: 'DELETE' });
+    alert(res.message || '删除成功');
+    loadUsers();
+    loadRecentUsers();
+  } catch (error) {
+    alert('删除失败：' + error.message);
+  }
+}
+
+async function resetPassword(userId, nickname) {
+  const newPassword = prompt(`为用户 "${nickname}" 设置新密码：`, '123456');
+  if (!newPassword) return;
+  if (newPassword.length < 6) { alert('密码至少6位'); return; }
+  try {
+    const res = await adminFetch(`/api/admin/users/${userId}/reset-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ newPassword })
+    });
+    alert(res.message || '密码重置成功，新密码已发送到用户邮箱');
+  } catch (error) {
+    alert('重置失败：' + error.message);
   }
 }
 
